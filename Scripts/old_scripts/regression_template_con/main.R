@@ -1,0 +1,151 @@
+### 
+# this script will run the models
+
+# Initialize folders
+home_folder <- '/home/benbrew/hpf/largeprojects/agoldenb/ben/Projects/'
+project_folder <- paste0(home_folder, '/LFS')
+test <- paste0(project_folder, '/Scripts/regression_template_con')
+data_folder <- paste0(project_folder, '/Data')
+methyl_data <- paste0(data_folder, '/methyl_data')
+clin_data <- paste0(data_folder, '/clin_data')
+results_folder <- paste0(test, '/Results')
+
+
+# Load Libraries and Dependencies ---------------------------------
+library("igraph")
+library("foreach")
+library("ROCR")
+library("doParallel")
+library("caret")
+library("glmnet")
+library("randomForest")
+library("kernlab")
+library("pROC")
+library(dplyr)
+library(preprocessCore)
+
+#### Set the "hyper" parameters 
+#registerDoParallel(1)
+NUM_OF_PARTITION <- 2
+## TO MODIFY:
+
+# Load in clinical data
+clin <- read.csv(paste0(data_folder, '/clin.csv'))
+
+# subset clin so that it only has Mut 
+# clin <- clin[!is.na(clin$p53_germline),]
+# clin <- clin[clin$p53_germline == 'Mut',]
+
+# make age of diagnoses numeric
+clin$age_diagnosis <-as.numeric(as.character(clin$age_diagnosis))
+clin$blood_dna_malkin_lab_ <- as.factor(clin$blood_dna_malkin_lab_)
+
+# make age of sample collection numeric.
+clin$age_sample_collection <- as.numeric(as.character(clin$age_sample_collection))
+
+##########################
+# Load in methylation data. methyl_cor is a subset of features, excluding features with correlation 
+# over .8
+# methyl_impute <- read.csv(paste0(data_folder, '/methyl_impute.csv'))
+# methyl_impute_raw <- read.csv(paste0(data_folder, '/methyl_impute_raw.csv'))
+methyl_cor <- read.csv(paste0(data_folder, '/methyl_cor.csv'))
+methyl_cor$id <- as.factor(methyl_cor$id)
+
+#
+# inner_join clin and methylation, retrieving only the ids in both
+model_data <- inner_join(clin, methyl_cor,
+                         by = c('blood_dna_malkin_lab_' = 'id'))
+
+# get rid of NA in age of diagnoses
+model_data <- model_data[!is.na(model_data$age_diagnosis),]
+
+x_matrix <- model_data[1:56, 18:14249]
+
+# Scale data 
+x.methyl <- scale(x_matrix)
+dim(x.methyl)
+
+# groud truth
+label<- model_data$age_diagnosis
+ground_truth <- as.numeric(label)
+table(ground_truth)
+
+# groud truth_sam
+label_sam<- model_data$age_sample_collection
+ground_truth_sam <- as.numeric(label_sam)
+table(ground_truth_sam)
+
+
+#### Generate random partitions ---------------------------------
+temp.data_ind <- 1:dim(x.methyl)[1]
+
+# 1:NUM_OF_PARTITION have random partition of 70% data for training
+# foreach, run parallel 1:number of partitions, do the train and test split.
+partition <- foreach (temp.run_ind = 1:NUM_OF_PARTITION, .errorhandling="stop") %dopar% {
+  temp.good_split <- FALSE # set equal to false so while loop runs once
+  while (! temp.good_split) {
+    temp.train_index <- sample(temp.data_ind, length(temp.data_ind) * 0.70)# samples length of data 2/3 of data times
+    temp.complement <- setdiff(temp.data_ind, temp.train_index) # gets index of obsverations not in train.
+#     temp.l.train <- length(unique(ground_truth[temp.train_index])) # 2 labels
+#     temp.l.test <- length(unique(ground_truth[temp.complement])) # 2 labels
+#     temp.good_split <- ( temp.l.train == temp.l.test && temp.l.test == length(ground_truth) )
+    # checks to see if label lengths are equal and that they are equal to ground_truth
+    # while loops forces it to run until temp.good_split is true
+  temp.good_split <- TRUE
+
+  }
+
+  ## Make test set without validation set
+  temp.test_index <- temp.complement # this is the set to be tested on, the other 30%
+  ## Split to validation and test sets
+  # temp.valid_index <- sample(temp.complement, length(temp.data_ind) * 0.5)
+  # temp.test_index <- setdiff(temp.complement, temp.valid_index)
+  
+  # stopifnot - if any of the expressions in ... are not all true, then stop
+  stopifnot(length(temp.train_index) > 0) # train index must be greater than zero
+  stopifnot(length(temp.test_index) > 0) # test index must be greater than zero
+  stopifnot(length(intersect(temp.test_index, temp.train_index)) == 0) # there should be no overlap between
+  # train and test inddex
+  stopifnot(temp.train_index %in% temp.data_ind) # indexes must be in original index
+  stopifnot(temp.test_index %in% temp.data_ind)
+
+  # stopifnot(length(temp.valid_index) > 0)
+  # stopifnot(length(intersect(temp.test_index, temp.valid_index)) == 0)
+  # stopifnot(length(intersect(temp.train_index, temp.valid_index)) == 0)
+  # stopifnot(temp.valid_index %in% temp.data_ind)
+
+  list(
+    train_index = temp.train_index, # concatenate train and test index into list
+    test_index = temp.test_index
+    # ,valid_index = temp.valid_index
+  )
+} # dopar agrument ends here and parition now has all the different train and test splits (equal to number of 
+# partitions set.)
+rm(list = ls(pattern="temp*")) # remove all temps
+
+#### Standard models make predictions ---------------------------------
+source(paste0(test,'/standard_model_predict.R'))
+source(paste0(test,"/plots.R"))
+
+# for (temp.run_ind in 1:NUM_OF_PARTITION) { #to run in series 
+# another dopar that takes parition as an arugment. Refer to other script
+models.methyl <- foreach (temp.run_ind = 1:NUM_OF_PARTITION, .errorhandling="stop") %dopar% { # run in parallel
+  print(Sys.time())
+  print(temp.run_ind)
+  standard_model_predict(data = x.methyl, 
+                        ground_truth = ground_truth, 
+                        partition = partition,
+                        selected_features = NULL, 
+                        NFOLDS = 5, 
+                        N_CV_REPEATS = 2, 
+                        run_ind = temp.run_ind)
+}
+print("completed!")
+save(models.methyl, file="trained_modelsNresults_regression.RData")
+plot_models_performance(models.methyl,
+                        NUM_OF_PARTITION,
+                        "",
+                        paste0(results_folder,"/Classifiers_test_results.pdf"),
+                        "regression using methyl. markers"
+                        )
+

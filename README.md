@@ -1,6 +1,6 @@
 # LFS-age-of-onset
 
-#Main folders
+# Main folders
 
 ## 1) Scripts
 

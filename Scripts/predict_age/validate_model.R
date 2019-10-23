@@ -324,6 +324,10 @@ if(model_type == 'enet'){
   temp_importance  <- result_list[[3]]
   temp_model <- result_list[[4]]
   
+  saveRDS(cases_450, paste0('../../Data/', method,'/cases_450_beta_final','.rda'))
+  saveRDS(cases_850, paste0('../../Data/', method,'/cases_850_beta_final','.rda'))
+  saveRDS(con_all, paste0('../../Data/', method,'/all_con_beta_final', '.rda'))
+  
   
   saveRDS(temp_con, paste0('pc_data_test/', 'con_test_',method,'_',size,'_',is_gen,'_',combat,'_', model_type,'_',optimal_thresh,'_',use_null_450,'_',removed_cancer,'_',removed_cancer,'_',use_p53,'_', used_under_6,'.rda'))
   

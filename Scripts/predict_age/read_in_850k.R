@@ -5,14 +5,14 @@ path_to_controls <- '../../Data/methyl_data/controls'
 path_to_valid <- '../../Data/methyl_data/validation'
 
 # set preprocessing method and methylation data type 
-method <- 'quan'
+method <- 'noob'
 methyl_type <- 'beta'
 
 # source all functions
 source('all_functions.R')
 
 # read in 450k data to get probe names in order to subset 850k data by those probe names
-cases <- readRDS(paste0('../../Data/', method,'/cases_450_beta.rda'))
+cases <- readRDS(paste0('../../Data/', method,'/cases_450_m.rda'))
 
 # get probe names
 features_450 <- colnames(cases)[12:ncol(cases)]
@@ -87,7 +87,7 @@ gene_probes <- gene_probes[grepl(gene_region, gene_probes$focal_gene_regions),]
 
 gene_probes <- as.character(gene_probes$focal_CpGs[!duplicated(gene_probes$focal_CpGs)])
 
-
+library(IlluminaHumanMethylationEPICanno.ilm10b2.hg19)
 # controls
 rg_controls <- subset_rg_set(rg_set = rgControls,
                             keep_gender = TRUE,
@@ -109,14 +109,12 @@ rg_val <- subset_rg_set(rg_set = rgValid,
                              gene_probes = gene_probes)
 
 
-load('~/Desktop/temp_850.RData')
-method = 'illumina'
 
 rm(rgControls, rgValid)
 
 # preprocess controls and valid
-data_controls <-  preprocessMethod(rg_controls, preprocess = method, methyl_type = 'beta')
-data_valid <-  preprocessMethod(rg_val, preprocess = method, methyl_type = 'beta')
+data_controls <-  preprocessMethod(rg_controls, preprocess = method, methyl_type = 'm')
+data_valid <-  preprocessMethod(rg_val, preprocess = method, methyl_type = 'm')
 
 
 # subset by feature_450
@@ -135,6 +133,6 @@ data_valid <- process_rg_set_single(beta_data = data_valid,
                                        id_map = id_map_val, 
                                        clin = clin)
 # save data
-saveRDS(data_controls, paste0('../../Data/', method,'/controls_850_beta.rda'))
-saveRDS(data_valid, paste0('../../Data/', method,'/cases_850_beta.rda'))
+saveRDS(data_controls, paste0('../../Data/', method,'/controls_850_m.rda'))
+saveRDS(data_valid, paste0('../../Data/', method,'/cases_850_m.rda'))
 

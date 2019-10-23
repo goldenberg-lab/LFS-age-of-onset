@@ -15,7 +15,7 @@ remove_wild_type <- function(m_or_beta_values){
 
 # set fixed variables
 method = 'noob'
-combat = 'combat_1_new'
+combat = 'combat_1'
 remove_leading_pcs = 'first'
 
 # save beta data
@@ -287,11 +287,11 @@ if(combat == 'combat_1_new'){
           main_title = paste0('con_850', '_removed_', remove_leading_pcs))
 
 
-  saveRDS(cases_450, paste0('../../Data/', method,'/cases_450_', combat,'.rda'))
-  saveRDS(cases_850, paste0('../../Data/', method,'/cases_850_', combat,'.rda'))
-  saveRDS(con_450, paste0('../../Data/', method,'/con_450_', combat,'.rda'))
-  saveRDS(con_850, paste0('../../Data/', method,'/con_850_', combat,'.rda'))
-  saveRDS(con_wt, paste0('../../Data/', method,'/con_wt_', combat,'.rda'))
+  saveRDS(cases_450, paste0('../../Data/', method,'/cases_450_beta', combat,'.rda'))
+  saveRDS(cases_850, paste0('../../Data/', method,'/cases_850_beta', combat,'.rda'))
+  saveRDS(con_450, paste0('../../Data/', method,'/con_450_beta', combat,'.rda'))
+  saveRDS(con_850, paste0('../../Data/', method,'/con_850_beta', combat,'.rda'))
+  saveRDS(con_wt, paste0('../../Data/', method,'/con_wt_beta', combat,'.rda'))
   
   
   
@@ -326,6 +326,8 @@ if(combat == 'combat_sen'){
   all_con_wt$tech <- ifelse(all_con_wt$tech == 'batch_1', '450k', '850k')
 }
 
+
+############################
 
 # get controls 
 all_con_wt <- all_con_wt[!duplicated(all_con_wt$tm_donor),]
@@ -401,6 +403,38 @@ con_450 <- con_450[!is.na(con_450$gender),]
 
 
 rm(data_list)
+
+
+# #################################
+# all_data <- rbind(cases_450, cases_850, con_450, con_850, con_wt)
+# rm(cases_450, cases_850, con_450, con_850, all_cases, all_con, con_wt)
+# 
+# # use id 
+# all_data_ids <- unique(all_data$ids)
+# other_data_ids <- unique(temp$ids)
+# 
+# # get subset of data that is in other_data_ids ids but not in all_data_ids
+# extra_other_data_ids <- other_data_ids[!other_data_ids %in% all_data_ids]
+# extra_all_data_ids <- all_data_ids[!all_data_ids %in% other_data_ids]
+# shared_ids <- intersect(all_data_ids, other_data_ids)
+# 
+# extra_all_data <- all_data[all_data_ids %in% all_data$ids,]
+# extra_other_data <- temp[other_data_ids %in% temp$ids, ]
+# 
+# all_data_shared <- all_data[all_data$ids %in% shared_ids, ]
+# other_data_shared <- temp[temp$ids %in% shared_ids, ]
+# 
+# probes <- names(all_data_shared)[names(all_data_shared) %in% names(other_data_shared)]
+# 
+# log2(all_data_shared$cg03940047/ (1-all_data_shared$cg03940047)  )
+# other_data_shared$cg03940047
+# 
+# temp_all_data_2814 <- all_data_shared[all_data_shared$ids == '2814',]
+# temp_other_data_2814 <- other_data_shared[other_data_shared$ids == '2814',]
+# 
+# log2(temp_all_data_2814$cg03940047/ (1-temp_all_data_2814$cg03940047)  )
+# temp_other_data_2814$cg03940047
+#################################
 # first create a function to check how the variation in age
 # is accounted for by the PCs
 
@@ -599,9 +633,9 @@ con_wt <- remove_pc_age(con_wt, remove_leading_pcs = remove_leading_pcs)
 # 
 # dev.off()
 
-saveRDS(cases_450, paste0('../../Data/', method,'/cases_450_', combat,'.rda'))
-saveRDS(cases_850, paste0('../../Data/', method,'/cases_850_', combat,'.rda'))
-saveRDS(con_450, paste0('../../Data/', method,'/con_450_', combat,'.rda'))
-saveRDS(con_850, paste0('../../Data/', method,'/con_850_', combat,'.rda'))
-saveRDS(con_wt, paste0('../../Data/', method,'/con_wt_', combat,'.rda'))
+saveRDS(cases_450, paste0('../../Data/', method,'/cases_450_beta_new', combat,'.rda'))
+saveRDS(cases_850, paste0('../../Data/', method,'/cases_850_beta_new', combat,'.rda'))
+saveRDS(con_450, paste0('../../Data/', method,'/con_450_beta_new', combat,'.rda'))
+saveRDS(con_850, paste0('../../Data/', method,'/con_850_beta_new', combat,'.rda'))
+saveRDS(con_wt, paste0('../../Data/', method,'/con_wt_beta_new', combat,'.rda'))
 

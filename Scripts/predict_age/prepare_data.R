@@ -8,8 +8,8 @@ remove_wild_type <- function(m_or_beta_values){
 
 
 # set fixed variables
-method = 'swan'
-combat = 'combat_sen'
+method = 'noob'
+combat = 'combat_1'
 beta_thresh = 0.05
 methyl_type = 'beta'
 
@@ -233,6 +233,8 @@ names(con_wt)[9] <- 'tech'
 # fill new variable with right tech indication
 con_mut$tech <- '450k'
 con_wt$tech <- '450k'
+
+temp <- readRDS('~/Desktop/cases_450_small_cvcombat_1_new.rda')
 
 saveRDS(cases_450_small, paste0('../../Data/', method,'/cases_450_small_norm_', combat,'.rda'))
 saveRDS(cases_850_small, paste0('../../Data/', method,'/cases_850_small_norm_', combat,'.rda'))

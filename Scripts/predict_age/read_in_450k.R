@@ -1,5 +1,6 @@
 #1stExon   3'UTR   5'UTR    Body TSS1500  TSS200
 
+
 ##########
 # get base directory for 4 batch
 ##########
@@ -7,7 +8,7 @@ path_to_cases_tor <- '../../Data/methyl_data/cases_toronto'
 path_to_cases_mon <- '../../Data/methyl_data/cases_montreal'
 
 # set preprocessing method
-method <- 'illumina'
+method <- 'noob'
 methyl_type <- 'beta'
 
 # get functions
@@ -25,7 +26,7 @@ rgCasesM <- read.metharray.exp(path_to_cases_mon, recursive = T)
 rgCases <- combineArrays(rgCasesT, rgCasesM)
 rm(rgCasesT, rgCasesM)
 
-save.image('~/Desktop/temp_450.RData')
+# save.image('~/Desktop/temp_450.RData')
 
 ##########
 # load genomic methyl set (from controls) - you need genetic locations by probe from this object
@@ -101,7 +102,7 @@ rm(rgCases)
 
 
 # preprocess controls and valid
-data_cases <-  preprocessMethod(rg_cases, preprocess = method, methyl_type = 'beta')
+data_cases <-  preprocessMethod(rg_cases, preprocess = method, methyl_type = 'm')
 
 # temp <- GenomicRatioSet(data_cases)
 # get cases mapped to clinical data 
@@ -119,7 +120,7 @@ data_wt_controls_450 <- data_controls_450[data_controls_450$p53_germline == 'WT'
 
 
 # save all four data sets: 1) LFS cancer, LFS controls, WT cancer, WT controls
-saveRDS(data_cases_450, paste0('../../Data/', method,'/cases_450_beta.rda'))
-saveRDS(data_controls_450, paste0('../../Data/', method,'/controls_450_beta.rda'))
-saveRDS(data_wt_cases_450, paste0('../../Data/', method,'/cases_wt_450_beta.rda'))
-saveRDS(data_controls_450,paste0('../../Data/', method,'/controls_wt_450_beta.rda'))
+saveRDS(data_cases_450, paste0('../../Data/', method,'/cases_450_m.rda'))
+saveRDS(data_controls_450, paste0('../../Data/', method,'/controls_450_m.rda'))
+saveRDS(data_wt_cases_450, paste0('../../Data/', method,'/cases_wt_450_m.rda'))
+saveRDS(data_controls_450,paste0('../../Data/', method,'/controls_wt_450_m.rda'))

@@ -101,11 +101,11 @@ rf_important_results <- list()
 
 
 if(size =='used_bh'){
-  cases_450 <-  readRDS(paste0('../../Data/', method,'/cases_450_small_cv', combat,'.rda'))
-  cases_850 <- readRDS(paste0('../../Data/', method,'/cases_850_small_cv', combat,'.rda'))
-  con_mut <- readRDS(paste0('../../Data/', method,'/con_mut_small_cv', combat,'.rda'))
-  con_850 <- readRDS( paste0('../../Data/', method,'/con_850_small_cv', combat,'.rda'))
-  con_wt <- readRDS(paste0('../../Data/', method,'/con_wt_small_cv', combat,'.rda'))
+  cases_450 <-  readRDS(paste0('../../Data/', method,'/cases_450_small_beta_new', combat,'.rda'))
+  cases_850 <- readRDS(paste0('../../Data/', method,'/cases_850_small_beta_new', combat,'.rda'))
+  con_mut <- readRDS(paste0('../../Data/', method,'/con_mut_small_beta_new', combat,'.rda'))
+  con_850 <- readRDS( paste0('../../Data/', method,'/con_850_small_beta_new', combat,'.rda'))
+  con_wt <- readRDS(paste0('../../Data/', method,'/con_wt_small_beta_new', combat,'.rda'))
   
 } else {
   cases_450 <-  readRDS(paste0('../../Data/', method,'/cases_450_cv', combat,'.rda'))
@@ -318,6 +318,10 @@ if(model_type == 'enet'){
   temp_importance  <- result_list[[3]]
   temp_model <- result_list[[4]]
   
+  saveRDS(cases_450, paste0('../../Data/', method,'/cases_450_small_beta_new_final', combat,'.rda'))
+  saveRDS(cases_850, paste0('../../Data/', method,'/cases_850_small_beta_new_final', combat,'.rda'))
+  saveRDS(con_all, paste0('../../Data/', method,'/con_mut_small_beta_new_final', combat,'.rda'))
+  saveRDS(temp_importance, paste0('../../Data/', method,'/probe_importance', combat,'.rda'))
   
   # temp_con <-  readRDS(paste0('pc_data_test/', 'con_test_',method,'_',size,'_',is_gen,'_',combat,'_', model_type,'_',optimal_thresh,'_',use_null_450,'_',removed_cancer,'_',removed_cancer,'_',use_p53,'_', used_under_6,'.rda'))
   # 

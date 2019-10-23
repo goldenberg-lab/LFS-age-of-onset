@@ -2,18 +2,19 @@
 # get functions
 source('all_functions.R')
 
+
 method = 'noob'
 ##### -------- beta
 
 # read in 850k
-con_850 <- readRDS(paste0('../../Data/', method,'/controls_850_beta.rda'))
-cases_850 <- readRDS(paste0('../../Data/', method,'/cases_850_beta.rda'))
+con_850 <- readRDS(paste0('../../Data/', method,'/controls_850_m.rda'))
+cases_850 <- readRDS(paste0('../../Data/', method,'/cases_850_m.rda'))
 
 # read in 450k
-cases_450 <- readRDS(paste0('../../Data/', method,'/cases_450_beta.rda'))
-con_450 <- readRDS(paste0('../../Data/', method,'/controls_450_beta.rda'))
-cases_wt_450 <- readRDS(paste0('../../Data/', method,'/cases_wt_450_beta.rda'))
-con_wt_450 <- readRDS(paste0('../../Data/', method,'/controls_wt_450_beta.rda'))
+cases_450 <- readRDS(paste0('../../Data/', method,'/cases_450_m.rda'))
+con_450 <- readRDS(paste0('../../Data/', method,'/controls_450_m.rda'))
+cases_wt_450 <- readRDS(paste0('../../Data/', method,'/cases_wt_450_m.rda'))
+con_wt_450 <- readRDS(paste0('../../Data/', method,'/controls_wt_450_m.rda'))
 
 # 
 # # ##### -------- m values (log2(meth/unmeth))
@@ -114,12 +115,12 @@ names(con_850)[10] <- 'cancer_status'
 
 
 # get shared validation set
-shared_valid_beta <- get_shared_data(cases_450, 
+shared_valid <- get_shared_data(cases_450, 
                                      cases_850, 
                                      cases_or_controls = 'cases')
 
 # get shared controls set
-shared_controls_beta <- get_shared_data(con_450, 
+shared_controls <- get_shared_data(con_450, 
                                         con_850, 
                                         cases_or_controls = 'controls')
 
@@ -134,8 +135,8 @@ shared_controls_beta <- get_shared_data(con_450,
 #                                    cases_or_controls = 'controls')
 
 # save shared cases and controls
-saveRDS(shared_valid_beta, paste0('../../Data/', method,'/shared_valid_beta.rda'))
-saveRDS(shared_controls_beta, paste0('../../Data/', method,'/shared_controls_beta.rda'))
+saveRDS(shared_valid, paste0('../../Data/', method,'/shared_valid_m.rda'))
+saveRDS(shared_controls, paste0('../../Data/', method,'/shared_controls_m.rda'))
 
 # saveRDS(shared_valid_m, 'all_data/shared_valid_m.rda')
 # saveRDS(shared_controls_m, 'all_data/shared_controls_m.rda')
@@ -163,10 +164,19 @@ con_wt_450 <- clean_dat(con_wt_450, tech = '450k',cases_or_controls = 'con', mut
 con_850 <- clean_dat(con_850, tech = '850k',cases_or_controls = 'con', mut_or_wt = 'mut')
 # con_850_m <- clean_dat(con_850_m, tech = '850k',cases_or_controls = 'con', mut_or_wt = 'mut')
 
+column_names <- intersect(names(con_450), names(con_850))
+cases_450 <- cases_450[, column_names]
+cases_850 <- cases_850[, column_names]
+con_450 <- con_450[, column_names]
+cases_wt_450 <- cases_wt_450[, column_names]
+con_wt_450 <- con_wt_450[, column_names]
 
+
+
+all_data <- rbind(cases_450, cases_850, con_450, con_850)
 # run PCA
-get_pca(pca_data = cases_450,
-        column_name = 'gender',
+get_pca(pca_data = all_data,
+        column_name = 'sentrix_id',
         show_variance = FALSE,
         pc_x = 1,
         pc_y = 2,
@@ -235,8 +245,8 @@ con_450 <- con_450[!grepl('3847', con_450$tm_donor),]
 # con_450_m <- con_450_m[!grepl('3847', con_450_m$tm_donor),]
 
 # get overlapping names
-cg_names <- names(cases_850)[!grepl('^cg', names(cases_850))]
-clin_names <- names(cases_850)[grepl('^cg', names(cases_850))]
+cg_names <- names(cases_850)[grepl('^cg', names(cases_850))]
+clin_names <- names(cases_850)[!grepl('^cg', names(cases_850))]
 
 
 # now subset cases_450, cases_wt_450, con_450, con_wt_450

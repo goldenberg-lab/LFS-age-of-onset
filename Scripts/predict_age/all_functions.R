@@ -436,13 +436,14 @@ run_combat <- function(temp_data, type) {
 
 ##########
 # get pca function
-##########
-# pca_data = con_450
-# column_name = 'tech'
-# show_variance = FALSE
-# pc_x = 1
-# pc_y = 2
-# main_title = 'PC:cases bet'
+#########
+pca_data = dat
+column_name = 'gender'
+show_variance = FALSE
+pc_x = 1
+pc_y = 2
+main_title = 'PC:cases bet'
+
 
 get_pca <- function(pca_data, 
                     column_name,
